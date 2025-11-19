@@ -13,27 +13,8 @@ The demo showcases building a weather application called MyWeatherHub using .NET
 ### What to Do:
 
 1. **Add Aspire Projects to Solution**
-   - Add new `AppHost` project
-   - Add new `ServiceDefaults` project
-
-2. **Install NuGet Packages**
-
-   **AppHost.csproj:**
-   ```xml
-   <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0" />
-   <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0" />
-   ```
-
-   **ServiceDefaults.csproj:**
-   ```xml
-   <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0" />
-   <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.0" />
-   <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
-   <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
-   <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
-   <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
-   <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
-   ```
+   - dotnet new aspire-servicedefaults
+	 - dotnet sln add ServiceDefaults
 
 3. **Add Project References**
    - Add ServiceDefaults reference to both Api and MyWeatherHub projects
@@ -50,6 +31,9 @@ The demo showcases building a weather application called MyWeatherHub using .NET
    - Add `app.MapDefaultEndpoints();` before mapping API endpoints
 
 5. **Create AppHost.cs**
+
+   - dotnet new aspire-apphost
+
    ```csharp
    var builder = DistributedApplication.CreateBuilder(args);
 
@@ -100,10 +84,19 @@ The demo showcases building a weather application called MyWeatherHub using .NET
        var nws = builder.AddExternalService("nws", "https://api.weather.gov");
     ```
 
+4. Add WithHealthCheck to AppHost.cs
+
+		```csharp
+			var theApi = builder.AddProject<Projects.Api>("api")
+			.WithHttpHealthCheck("/health")
+			.WithReference(nws);
+		```
+
 **Key Demo Points:**
 - Show health check endpoint working
 - Demonstrate health status in Aspire dashboard
 - Show what happens when external dependency is unhealthy
+	- Health check report on the dashboard
 
 ---
 
@@ -154,6 +147,7 @@ The demo showcases building a weather application called MyWeatherHub using .NET
 - Show Redis container automatically starting
 - Demonstrate caching improving response times
 - Show Redis data in Aspire dashboard
+- Show RedisInsight
 - Highlight external service reference to NWS API
 
 ---
@@ -272,9 +266,9 @@ The demo showcases building a weather application called MyWeatherHub using .NET
 
 ## Prerequisites for Demo
 
-- .NET 9 SDK installed
+- .NET 10 SDK installed
 - Docker Desktop running
-- Visual Studio 2022 or VS Code with C# extension
+- Visual Studio 2026 or VS Code with C# extension
 - Azure CLI (for deployment demo)
 - GitHub account with access to GitHub Models (for AI demo)
 
