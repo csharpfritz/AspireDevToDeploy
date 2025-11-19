@@ -9,13 +9,172 @@
 
 <HeadContent>
 	<style>
+		body {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+		}
+
+		h1 {
+			color: #fff;
+			text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+			font-weight: 700;
+			margin-bottom: 0.5rem;
+		}
+
+		h2 {
+			color: #f0f0f0;
+			font-size: 1.2rem;
+			font-weight: 400;
+			margin-bottom: 2rem;
+		}
 
 		.quickgrid {
 			width: 100%;
+			background: white;
+			border-radius: 8px;
+			overflow: hidden;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		}
+
+		.quickgrid thead {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+		}
+
+		.quickgrid th {
+			padding: 12px;
+			font-weight: 600;
+		}
+
+		.quickgrid td {
+			padding: 10px 12px;
+			color: #333;
+		}
+
+		.quickgrid tbody tr:hover {
+			background-color: #f8f9fa;
 		}
 
 		.quickgrid td:has(span.selectedCell) {
-			background-color: yellow;
+			background-color: #ffd700;
+			font-weight: 600;
+		}
+
+		.search-box input {
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			padding: 4px 8px;
+			width: 100%;
+			color: #333;
+		}
+
+		.card {
+			border: none;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			transition: transform 0.2s, box-shadow 0.2s;
+		}
+
+		.card:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+
+		.card-header {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			font-weight: 600;
+			border-bottom: none;
+		}
+
+		.weather-forecast h4 {
+			color: white;
+			font-weight: 600;
+			text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+		}
+
+		.alert {
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+
+		.spinner-border {
+			color: white;
+			width: 3rem;
+			height: 3rem;
+		}
+
+		.link-primary {
+			color: #667eea !important;
+			font-weight: 500;
+		}
+
+		.link-primary:hover {
+			color: #764ba2 !important;
+			text-decoration: underline;
+		}
+
+		nav.pagination {
+			background: white;
+			padding: 12px 16px;
+			border-radius: 8px;
+			margin-top: 10px;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+		}
+
+		.pagination {
+			background: white;
+			padding: 12px 16px;
+			border-radius: 8px;
+			margin-top: 10px;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+			width: 100%;
+		}
+
+		.pagination > div {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+		}
+
+		.pagination nav {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.pagination * {
+			color: #333 !important;
+			font-weight: 500;
+		}
+
+		.pagination button:not(:disabled),
+		.pagination a:not(:disabled) {
+			color: #667eea !important;
+			font-weight: 600;
+		}
+
+		.pagination button:not(:disabled):hover,
+		.pagination a:not(:disabled):hover {
+			background-color: #f0f0f0;
+			border-radius: 4px;
+		}
+
+		nav.pagination button,
+		nav.pagination span {
+			color: #333;
+			font-weight: 500;
+		}
+
+		nav.pagination button:not(:disabled) {
+			color: #667eea;
+			font-weight: 600;
+		}
+
+		nav.pagination button:not(:disabled):hover {
+			background-color: #f0f0f0;
+			border-radius: 4px;
 		}
 	</style>
 </HeadContent>
@@ -24,7 +183,7 @@
 <h2>Live Weather reports from the US National Weather service</h2>
 
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-5">
 		<QuickGrid Items="zones" TGridItem="Zone" Pagination="pagination">
 			<TemplateColumn Title="Name" SortBy="NameSort" Sortable="true">
 				<ColumnOptions>
@@ -47,48 +206,63 @@
 				</ChildContent>
 			</TemplateColumn>
 		</QuickGrid>
-		<Paginator State="@pagination"></Paginator>
+		<div class="pagination">
+			<Paginator State="@pagination"></Paginator>
+		</div>
 	</div>
 
-	<div class="col-md-6" style="max-width:30em;">
-		<p>Click the name of a weather zone from the <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">US National Weather Service</a> and the upcoming weather for that zone will appear below.</p>
-		<p>You can sort and filter the list of available weather forecast zones using the column headers of the grid.</p>
-		<p>Not all forecast zones will have a forecast available.  For reliable zones, try Philadelphia, Manhattan, District of Columbia, or Los Angeles County San Gabriel Valley</p>
-		<p>For a zone that isn't reliably reporting, try Bristol Bay, AK (Alaska)</p>
-	</div>
-
-</div>
-
-@if (IsLoading)
-{
-	<div class="spinner-border" role="status">
-		<span class="visually-hidden">Loading...</span>
-	</div>
-}
-else if (SelectedZone != null && Forecast != null)
-{
-
-	<h3>Weather for @SelectedZone.Name<text>, </text> @SelectedZone.State (@SelectedZone.Key)</h3>
-
-	<div class="row row-cols-1 row-cols-md-4 g-4">
-		@foreach (var forecast in Forecast.Take(8))
+	<div class="col-md-7">
+		@if (SelectedZone == null)
 		{
-
-			<div class="col">
-				<div class="card">
-					<div class="card-header">@forecast.Name</div>
-					<div class="card-body">@forecast.DetailedForecast</div>
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Welcome to My Weather Hub</h5>
+					<p>Click the name of a weather zone from the <a href="https://www.weather.gov/documentation/services-web-api" target="_blank">US National Weather Service</a> and the upcoming weather for that zone will appear here.</p>
+					<p>You can sort and filter the list of available weather forecast zones using the column headers of the grid.</p>
+					<p><strong>Reliable zones to try:</strong> Philadelphia, Manhattan, District of Columbia, or Los Angeles County San Gabriel Valley</p>
+					<p><strong>Zone with limited reporting:</strong> Bristol Bay, AK (Alaska)</p>
 				</div>
 			</div>
-
+		}
+		else if (IsLoading)
+		{
+			<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+				<div class="spinner-border" role="status">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+			</div>
+		}
+		else if (Forecast != null)
+		{
+			<div class="weather-forecast">
+				<h4 class="mb-3">Weather for @SelectedZone.Name, @SelectedZone.State (@SelectedZone.Key)</h4>
+				<div class="row row-cols-1 row-cols-lg-2 g-3" style="max-height: 600px; overflow-y: auto;">
+					@foreach (var forecast in Forecast.Take(8))
+					{
+						<div class="col">
+							<div class="card h-100">
+								<div class="card-header fw-bold">@forecast.Name</div>
+								<div class="card-body">
+									<p class="card-text small">@forecast.DetailedForecast</p>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
+		else if (!string.IsNullOrEmpty(Error))
+		{
+			<div class="alert alert-danger" role="alert">
+				<h5 class="alert-heading">Error Loading Forecast</h5>
+				<p>@Error</p>
+				<hr>
+				<p class="mb-0">Please choose another weather station from the list.</p>
+			</div>
 		}
 	</div>
 
-}
-else if (SelectedZone != null && !string.IsNullOrEmpty(Error))
-{
-	<div class="alert-danger border border-1 border-danger p-3" style="width: 30em">@Error<br />Choose another weather station</div>
-}
+</div>
 
 @code {
 
